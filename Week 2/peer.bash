@@ -71,11 +71,13 @@ Endpoint = ${end}" > /etc/wireguard/${peername}-wg0.conf
 # Add peer configuration to the server config
 peertoserver(){
 echo "
-
+# molly start
 [Peer]
 PublicKey = ${pubkey}
 PresharedKey = ${prekey}
-AllowedIPs = 10.234.132.100/32" | tee -a /etc/wireguard/wg0.conf
+AllowedIPs = 10.234.132.100/32
+# molly end
+" | tee -a /etc/wireguard/wg0.conf
 } 
 
 # Check if the peer file exists

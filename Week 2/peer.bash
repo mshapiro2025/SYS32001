@@ -6,8 +6,11 @@
 
 # Ask the user for the peer's name
 
-read -p "What is the peer's name? " peername
-
+if [[ $1 == "" ]]
+then
+    read -p "What is the peer's name? " peername
+else
+    peername="$1"
 # Generate key
 
 privkey="$(wg genkey)"
@@ -71,12 +74,12 @@ Endpoint = ${end}" > /etc/wireguard/${peername}-wg0.conf
 # Add peer configuration to the server config
 peertoserver(){
 echo "
-# molly start
+# ${peername} start
 [Peer]
 PublicKey = ${pubkey}
 PresharedKey = ${prekey}
 AllowedIPs = 10.234.132.100/32
-# molly end
+# ${peername} end
 " | tee -a /etc/wireguard/wg0.conf
 } 
 

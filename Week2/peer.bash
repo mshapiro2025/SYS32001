@@ -11,6 +11,7 @@ then
     read -p "What is the peer's name? " peername
 else
     peername="$1"
+fi
 # Generate key
 
 privkey="$(wg genkey)"
@@ -49,6 +50,11 @@ keep="$(head -1 /etc/wireguard/wg0.conf | awk '{print $7}')"
 
 lisport="$(shuf -n1 -i 40000-50000)"
 
+# Generate the IP address
+
+tempip=$(grep AllowedIPs /etc/wireguard/wg0.conf | sort -u | tail -1| cut -d\. -f4 | cut -d\/ -f1)
+ip=$(expr ${tempip} + 1)
+
 # Default routes for VPN
 
 routes="$(head -1 /etc/wireguard/wg0.conf | awk '{print $8}')"
@@ -57,7 +63,7 @@ routes="$(head -1 /etc/wireguard/wg0.conf | awk '{print $8}')"
 
 create_config(){
 	echo "[Interface]
-Address = 10.254.132.100/24
+Address = 10.254.132.${ip}/24
 DNS = ${dns}
 ListenPort = ${lisport}
 MTU = ${mtu}
@@ -78,7 +84,7 @@ echo "
 [Peer]
 PublicKey = ${pubkey}
 PresharedKey = ${prekey}
-AllowedIPs = 10.234.132.100/32
+AllowedIPs = 10.234.132.${ip}/32
 # ${peername} end
 " | tee -a /etc/wireguard/wg0.conf
 } 

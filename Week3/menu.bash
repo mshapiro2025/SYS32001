@@ -121,7 +121,7 @@ function securitymenu() {
         L|l) netstat -an --inet | less
         ;;
         C|c) 
-            if [[ $(cat /etc/passwd | awk -F: '{print$3}' | grep -x '0') == '0' ]];
+            if [[ $(cat /etc/passwd | awk -F: '{print $3}' | grep -x '0') == '0' ]];
             then
                 echo "There is only one user with the UID 0."
             else

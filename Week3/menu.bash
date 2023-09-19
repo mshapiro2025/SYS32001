@@ -106,6 +106,21 @@ function vpn() {
 vpn 
 }
 
+# Initialize block list menu function
+
+function blockmenu() {
+	clear
+	echo "[C]isco URL blocklist generator"
+	echo "[W]indows blocklist generator"
+	echo "[M]acOS blocklist generator"
+	echo "[S]ecurity menu"
+	echo "[B]ack to main menu"
+	echo "[E]xit"
+	read -p "Please choose an option [C, D, W, S, M, E] " blockchoice
+	
+	case "$blockchoice" in
+}
+
 # Initialize security menu function
 
 function securitymenu() {

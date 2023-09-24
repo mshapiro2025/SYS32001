@@ -88,7 +88,7 @@ function ciscorules() {
 function windowsrules() {
 	for line in $(cat badIPs.txt)
 	do
-		echo "New-NetFirewallRule -DisplayName \"Block $line\" -Direction Outbound -LocalPort Any -Protocol TCP -Action Block -RemoteAddress $line" | tee -a windowsblocklist.ps1
+		echo "New-NetFirewallRule -DisplayName \"Block $line\" -Direction Inbound -LocalPort Any -Protocol TCP -Action Block -RemoteAddress $line" | tee -a windowsblocklist.ps1
 	done
 }
 

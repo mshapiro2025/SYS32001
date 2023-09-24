@@ -113,12 +113,31 @@ function blockmenu() {
 	echo "[C]isco URL blocklist generator"
 	echo "[W]indows blocklist generator"
 	echo "[M]acOS blocklist generator"
+	echo "[I]ptables blocklist generator"
 	echo "[S]ecurity menu"
 	echo "[B]ack to main menu"
 	echo "[E]xit"
-	read -p "Please choose an option [C, D, W, S, M, E] " blockchoice
+	read -p "Please choose an option [C, W, M, I, S, B, E] " blockchoice
 	
 	case "$blockchoice" in
+	C|c) bash /root/SYS32001/Week4/parse-threat.bash -c
+	;;
+	W|w) bash /root/SYS32001/Week4/parse-threat.bash -w
+	;;
+	M|m) bash /root/SYS32001/Week4/parse-threat.bash -m
+	;;
+	I|i) bash /root/SYS32001/Week4/parse-threat.bash -i
+	;;
+	S|s) securitymenu
+	;;
+	B|b) menu
+	;;
+	E|e) exit 0
+	;;
+	*) invalid
+	;;
+	esac
+blockmenu
 }
 
 # Initialize security menu function
@@ -129,9 +148,10 @@ function securitymenu() {
     echo "[C]heck for non-root users with a UID of 0"
     echo "[S]ee the last 10 logged-in users"
     echo "[I]nspect currently logged-in users"
+    echo "[B]lock list menu"
     echo "[M]ain menu"
     echo "[E]xit"
-    read -p "Please choose an option [L, C, S, I, M, E]: " userchoice
+    read -p "Please choose an option [L, C, S, I, B, M, E]: " userchoice
     case "$userchoice" in
         L|l) netstat -an --inet | less
         ;;
@@ -148,6 +168,8 @@ function securitymenu() {
         ;;
         I|i) users | less
         ;;
+	B|b) blockmenu
+	;;
         M|m) menu
         ;;
         E|e) exit 0

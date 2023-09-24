@@ -37,14 +37,16 @@ if test -f "${targetedthreatfile}"; then
 	fi
 else
 	echo "You don't have the targetedthreat Github file yet. Let's download it!"
-	wget https://rules.emergingthreats.net/blockrules/emerging-drop.suricata.rules -O ${targetedthreatfile}
+	wget https://raw.githubusercontent.com/botherder/targetedthreats/master/targetedthreats.csv -O ${targetedthreatfile}
 fi
 
 # Regex to extract the networks
 
 egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.0\/[0-9]{1,2}' ${threatfile} | sort -u | tee badIPs.txt
 
-egrep -o '"http*' ${targetedthreatfile} | sort -u | tee -a badIPs.txt
+# Grep to extract the domain names
+
+grep "domain" ${targetedthreatfile} | awk -F, '{print $2}' | sort -u | tee baddomains.txt
 
 # Create a firewall ruleset for iptables
 
@@ -71,35 +73,46 @@ load anchor "com.apple" from "/etc/pf.anchors/com.apple"
 	done
 }
 
+# Create a firewall ruleset for Cisco
+
 function ciscorules() {
-	echo 'class-map match-any BAD_URLS" | tee
+	echo 'class-map match-any BAD_URLS' | tee ciscoblocklist.txt
+	for line in $(cat baddomains.txt)
+	do
+		echo "match protocol http host $line" | tee -a ciscoblocklist.txt
+	done
+}
 
-function blockmenu() {
-	clear
-	echo "[I]ptables rules"
-	echo "[C]isco rules"
-	echo "[W]indows rules"
-	echo "[M]acOS rules"
-	echo "[E]xit"
-	read -p "Please enter a choice [I, C, W, M, E] " optionchoice
+# Create a firewall ruleset for Windows Defender
 
+function windowsrules() {
+	for line in $(cat badIPs.txt)
+	do
+		echo "New-NetFirewallRule -DisplayName \"Block $line\" -Direction Outbound -LocalPort Any -Protocol TCP -Action Block -RemoteAddress $line" | tee -a windowsblocklist.ps1
+	done
+}
+
+# Create a menu with switches to make it usable with the menu.bash script 
+
+while getopts 'icwmh' OPTION; do
 	case "$OPTION" in 
 	I|i) iptablesrules
 	;;
-	C|c)
+	C|c) ciscorules
 	;;
-	W|w)
+	W|w) windowsrules
 	;;
 	M|m) macrules
 	;;
-	E|e) exit 0
+	H|h)
+		echo ""
+		echo "Usage: $(basename $0) [-i] | [-c] | [-w] | [-m]"
+		echo ""
+		echo 1
 	;;
 	*)
 		echo "Sorry, invalid option."
-		menu
+		echo 1
+	;;
 	esac
-}
-
-# Call menu function
-
-menu
+done

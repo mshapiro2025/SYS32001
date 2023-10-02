@@ -118,7 +118,7 @@ checks "perms on /etc/passwd" "0/0/(*644/**********)" "$passwdperms" "Run the ch
 # Check that perms on /etc/shadow are configured properly
 
 shadowu=$(stat /etc/shadow | grep "Access: (" | awk '{print $5}')
-shadowg=$(stat /etc/shadow | grep "Access: (" | awk '{print $9}')
+shadowg=$(stat /etc/shadow | grep "Access: (" | awk '{print $10}')
 shadow_perms=$(stat /etc/shadow | grep "Access: (" | awk '{print $2}')
 if [[ $shadow_perms == *"640"* ]]
 then
@@ -127,7 +127,7 @@ then
 else
 	shadowperms=$shadowu$shadowg$shadow_perms
 fi
-checks "perms on /etc/shadow" "0/0/(*640/**********)" "$shadowperms" "Run the chown root:root /etc/shadow and chmod o-rwx,g-wx /etc/shadow commands"
+checks "perms on /etc/shadow" "0/shadow)(*640/**********)" "$shadowperms" "Run the chown root:shadow /etc/shadow and chmod o-rwx,g-wx /etc/shadow commands"
 
 # Check that perms on /etc/group are configured properly
 
@@ -146,7 +146,7 @@ checks "perms on /etc/group" "0/0/(*644/**********)" "$groupperms" "Run the chow
 # Check that perms on /etc/gshadow are configured properly
 
 gshadowu=$(stat /etc/gshadow | grep "Access: (" | awk '{print $5}')
-gshadowg=$(stat /etc/gshadow | grep "Access: (" | awk '{print $9}')
+gshadowg=$(stat /etc/gshadow | grep "Access: (" | awk '{print $10}')
 gshadow_perms=$(stat /etc/gshadow | grep "Access: (" | awk '{print $2}')
 if [[ $gshadow_perms == *"640"* ]]
 then
@@ -155,7 +155,7 @@ then
 else
 	gshadowperms=$gshadowu$gshadowg$gshadow_perms
 fi
-checks "perms on /etc/gshadow" "0/0/(*640/**********)" "$gshadowperms" "Run the chown root:root /etc/gshadow and chmod 640 /etc/gshadow commands"
+checks "perms on /etc/gshadow" "0/shadow)(*640/**********)" "$gshadowperms" "Run the chown root:shadow /etc/gshadow and chmod 640 /etc/gshadow commands"
 
 # Check that perms on /etc/passwd- are configured properly
 
@@ -174,7 +174,7 @@ checks "perms on /etc/passwd-" "0/0/(*644/**********)" "$passwdperms" "Run the c
 # Check that perms on /etc/shadow- are configured properly
 
 shadowu=$(stat /etc/shadow- | grep "Access: (" | awk '{print $5}')
-shadowg=$(stat /etc/shadow- | grep "Access: (" | awk '{print $9}')
+shadowg=$(stat /etc/shadow- | grep "Access: (" | awk '{print $10}')
 shadow_perms=$(stat /etc/shadow- | grep "Access: (" | awk '{print $2}')
 if [[ $shadow_perms == *"640"* ]]
 then
@@ -183,7 +183,7 @@ then
 else
 	shadowperms=$shadowu$shadowg$shadow_perms
 fi
-checks "perms on /etc/shadow-" "0/0/(*640/**********)" "$shadowperms" "Run the chown root:root /etc/shadow- and chmod o-rwx,g-wx /etc/shadow- commands"
+checks "perms on /etc/shadow-" "0/shadow)(*640/**********)" "$shadowperms" "Run the chown root:shadow /etc/shadow- and chmod o-rwx,g-wx /etc/shadow- commands"
 
 # Check that perms on /etc/group- are configured properly
 
@@ -202,7 +202,7 @@ checks "perms on /etc/group-" "0/0/(*644/**********)" "$groupperms" "Run the cho
 # Check that perms on /etc/gshadow- are configured properly
 
 gshadowu=$(stat /etc/gshadow- | grep "Access: (" | awk '{print $5}')
-gshadowg=$(stat /etc/gshadow- | grep "Access: (" | awk '{print $9}')
+gshadowg=$(stat /etc/gshadow- | grep "Access: (" | awk '{print $10}')
 gshadow_perms=$(stat /etc/gshadow- | grep "Access: (" | awk '{print $2}')
 if [[ $gshadow_perms == *"640"* ]]
 then
@@ -211,7 +211,22 @@ then
 else
 	gshadowperms=$gshadowu$gshadowg$gshadow_perms
 fi
-checks "perms on /etc/gshadow-" "0/0/(*640/**********)" "$gshadowperms" "Run the chown root:root /etc/gshadow- and chmod o-rwx,g-rw /etc/gshadow- commands"
+checks "perms on /etc/gshadow-" "0/shadow)(*640/**********)" "$gshadowperms" "Run the chown root:shadow /etc/gshadow- and chmod o-rwx,g-rw /etc/gshadow- commands"
+
+# Ensure that there are no "+" entries in /etc/passwd
+
+output=$(grep '^\+:' /etc/passwd)
+checks "existence of legacy '+' entries in /etc/passwd" "" "$output" "Remove any legacy '+' entries from /etc/passwd"
+
+# Ensure that there are no "+" entries in /etc/shadow
+
+output=$(grep '^\+:' /etc/shadow)
+checks "existence of legacy '+' entries in /etc/shadow" "" "$output" "Remove any legacy '+' entries from /etc/shadow"
+
+# Ensure that there are no "+" entries in /etc/group
+
+output=$(grep '^\+:' /etc/group)
+checks "existence of legacy '+' entries in /etc/group" "" "$output" "Remove any legacy '+' entries from /etc/group"
 
 # Check what users have a UID of 0. 
 

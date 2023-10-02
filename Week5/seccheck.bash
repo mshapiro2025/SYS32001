@@ -127,7 +127,7 @@ then
 else
 	shadowperms=$shadowu$shadowg$shadow_perms
 fi
-checks "perms on /etc/shadow" "0/0/(*640/**********)" "$shadowperms" "Run the chown root:root /etc/shadow and chmod 640 /etc/shadow commands"
+checks "perms on /etc/shadow" "0/0/(*640/**********)" "$shadowperms" "Run the chown root:root /etc/shadow and chmod o-rwx,g-wx /etc/shadow commands"
 
 # Check that perms on /etc/group are configured properly
 
@@ -157,9 +157,63 @@ else
 fi
 checks "perms on /etc/gshadow" "0/0/(*640/**********)" "$gshadowperms" "Run the chown root:root /etc/gshadow and chmod 640 /etc/gshadow commands"
 
+# Check that perms on /etc/passwd- are configured properly
+
+passwdu=$(stat /etc/passwd- | grep "Access: (" | awk '{print $5}')
+passwdg=$(stat /etc/passwd- | grep "Access: (" | awk '{print $9}')
+passwd_perms=$(stat /etc/passwd- | grep "Access: (" | awk '{print $2}')
+if [[ $passwd_perms == *"644"* ]]
+then
+	passwd_perms="(*644/**********)"
+	passwdperms=$passwdu$passwdg$passwd_perms
+else
+	passwdperms=$passwdu$passwdg$passwd_perms
+fi
+checks "perms on /etc/passwd-" "0/0/(*644/**********)" "$passwdperms" "Run the chown root:root /etc/passwd- and chmod u-x,go-wx /etc/passwd- commands"
+
+# Check that perms on /etc/shadow- are configured properly
+
+shadowu=$(stat /etc/shadow- | grep "Access: (" | awk '{print $5}')
+shadowg=$(stat /etc/shadow- | grep "Access: (" | awk '{print $9}')
+shadow_perms=$(stat /etc/shadow- | grep "Access: (" | awk '{print $2}')
+if [[ $shadow_perms == *"640"* ]]
+then
+	shadow_perms="(*640/**********)"
+	shadowperms=$shadowu$shadowg$shadow_perms
+else
+	shadowperms=$shadowu$shadowg$shadow_perms
+fi
+checks "perms on /etc/shadow-" "0/0/(*640/**********)" "$shadowperms" "Run the chown root:root /etc/shadow- and chmod o-rwx,g-wx /etc/shadow- commands"
+
+# Check that perms on /etc/group- are configured properly
+
+groupu=$(stat /etc/group- | grep "Access: (" | awk '{print $5}')
+groupg=$(stat /etc/group- | grep "Access: (" | awk '{print $9}')
+group_perms=$(stat /etc/group- | grep "Access: (" | awk '{print $2}')
+if [[ $group_perms == *"644"* ]]
+then
+	group_perms="(*644/**********)"
+	groupperms=$groupu$groupg$group_perms
+else
+	groupperms=$groupu$groupg$group_perms
+fi
+checks "perms on /etc/group-" "0/0/(*644/**********)" "$groupperms" "Run the chown root:root /etc/group- and chmod u-x,go-wx /etc/group- commands"
+
+# Check that perms on /etc/gshadow- are configured properly
+
+gshadowu=$(stat /etc/gshadow- | grep "Access: (" | awk '{print $5}')
+gshadowg=$(stat /etc/gshadow- | grep "Access: (" | awk '{print $9}')
+gshadow_perms=$(stat /etc/gshadow- | grep "Access: (" | awk '{print $2}')
+if [[ $gshadow_perms == *"640"* ]]
+then
+	gshadow_perms="(*640/**********)"
+	gshadowperms=$gshadowu$gshadowg$gshadow_perms
+else
+	gshadowperms=$gshadowu$gshadowg$gshadow_perms
+fi
+checks "perms on /etc/gshadow-" "0/0/(*640/**********)" "$gshadowperms" "Run the chown root:root /etc/gshadow- and chmod o-rwx,g-rw /etc/gshadow- commands"
+
 # Check what users have a UID of 0. 
 
 uidusers=$(cat /etc/passwd | awk -F: '($3 == 0) {print $1}')
 checks "number of users with UID 0" "root" "${uidusers}" "Remove any users with a UID of 0 other than root or assign them a new UID if applicable"
-
-

@@ -14,7 +14,7 @@ APACHE_LOG="$1"
 
 if [[ ! -f ${APACHE_LOG} ]]
 then
-	echo "Please specify the path to a log file."
+	echo "Please specify the path to an existing log file."
 	exit 1
 fi
 
@@ -36,17 +36,19 @@ function getips() {
 # Creating an iptables ruleset (and create a document of bad IPs if it hasn't already been created)
 
 function iptablesrules() {
-	if [[ -f badIPs.txt ]]
-		for eachIP in $(cat badIPs.txt)
-		do
-			echo "iptables -A INPUT -s ${eachIP} -j DROP" | tee -a badIPs.iptables
-		done
-	else
-		getips
-		for eachIP in $(cat badIPs.txt)
-		do 
-			echo "iptables -A INPUT -s ${eachIP} -j DROP" | tee -a badIPs.iptables
-	fi
+if [[ -f badIPs.txt ]]
+then
+	for eachIP in $(cat badIPs.txt)
+	do
+		echo "iptables -A INPUT -s ${eachIP} -j DROP" | tee -a badIPs.iptables
+	done
+else
+	getips
+	for eachIP in $(cat badIPs.txt)
+	do 
+		echo "iptables -A INPUT -s ${eachIP} -j DROP" | tee -a badIPs.iptables
+	done
+fi
 }
 
 # Creating a Windows Powershell ruleset (and create a document of bad IPs if it hasn't already been created)
@@ -60,7 +62,7 @@ function windowsrules() {
 		done
 	else
 		getips
-		for eachIP in $cat badIPs.txt)
+		for eachIP in $(cat badIPs.txt)
 		do
 			echo "New-NetFirewallRule -DisplayName \"Block $eachIP\" -Direction Inbound -LocalPort Any -Protocol TCP -Action Block -RemoteAddress $eachIP" | tee -a windowsblocklist.ps1
 		done
